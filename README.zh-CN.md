@@ -1,7 +1,9 @@
 # 触觉偏好学习系统 / Haptic Preference Learning Toolkit
 
 English README: [README.md](README.md)
-[png](image.png)
+
+![UI Demo](image.png)
+
 ## 快速上手
 1. 克隆仓库：
    ```bash

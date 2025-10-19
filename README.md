@@ -1,7 +1,9 @@
 # haptic-preference-learning / English README
 
 [中文版](README_zh-CN.md)
-[png](image.png)
+
+![UI Demo](image.png)
+
 ## Quick Start
 1. Clone the repo:
    ```bash
