@@ -1,4 +1,4 @@
-# haptic-preference-learning / English README
+# haptic-preference-learning
 
 [中文版](README_zh-CN.md)
 
