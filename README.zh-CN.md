@@ -1,30 +1,30 @@
-# haptic-preference-learning / English README
+# 触觉偏好学习系统 / Haptic Preference Learning Toolkit
 
-[中文版](README_zh-CN.md)
+English README: [README.md](README.md)
 [png](image.png)
-## Quick Start
-1. Clone the repo:
+## 快速上手
+1. 克隆仓库：
    ```bash
    git clone https://github.com/iSanshi/haptic-preference-learning.git
    cd haptic-preference-learning
    ```
-2. (Optional) create a virtual environment:
-
-3. Install dependencies:
+2. 建议使用虚拟环境（可选）：
+   
+3. 安装依赖：
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Launch the UI:
+4. 启动界面：
    ```bash
-   python run_user_study_ui.py   # manual study workflow
-   python run_auto_test_ui.py    # automated testing workflow
+   python run_user_study_ui.py   # 用户实验流程
+   python run_auto_test_ui.py    # 自动测试流程
    ```
 
-5. Press **Begin** in the UI. In user mode you manually pick A/B clips and rate certainty (1–5); in auto-test mode the system simulates preferences via a ground-truth function.
-6. When a session completes, results are exported to `data/YYYYMMDD_<index>/session.json` and `log.txt`.
+5. 点击 **Begin** 开始。用户实验模式需手动选择 A/B 音频并给出 1–5 的不确定度等级；自动测试模式由系统自动迭代。
+6. 会话完成后，数据会导出到 `data/YYYYMMDD_序号/` 下的 `session.json` 与 `log.txt`。
 
-## Project Layout
+## 目录结构
 ```
 .
 ├── requirements.txt
