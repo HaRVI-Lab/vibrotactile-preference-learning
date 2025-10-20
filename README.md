@@ -1,7 +1,11 @@
 # haptic-preference-learning
 
 [中文版](README_zh-CN.md)
-
+Personalizing haptic feedback is difficult because users struggle to assign absolute satisfaction scores. We introduce a preference-based method that infers a user’s latent utility surface from binary pairwise comparisons (A/B choices). A Gaussian Process (GP) preference model encodes smoothness and posterior uncertainty over the stimulus space, while an active query policy selects comparisons by maximizing expected information gain. We incorporate self-reported response uncertainty as per-comparison weights to down-weight ambiguous judgments. By emphasizing relative rather than absolute evaluations, the system mitigates rating fatigue and drift and avoids forcing users to map tactile sensations onto a numeric scale. In simulation with synthetic ground-truth preferences, the method accurately recovers preference maps and optima, achieving higher sample efficiency than uniform/query-agnostic sampling. We also release an open-source framework for interactive preference search over haptic signals.
+Contributions.
+(i) A binary, preference-driven learning approach to haptic personalization that reduces user fatigue and rating drift;
+(ii) An interaction loop that weights comparisons by user-reported uncertainty to improve search efficiency;
+(iii) An open-source, extensible code framework for interactive preference search over haptic signals.
 ![UI Demo](image.png)
 
 ## Quick Start
