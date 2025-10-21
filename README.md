@@ -12,9 +12,6 @@ This repo provides a **preference-based haptic personalization** framework that 
 - Per-comparison **uncertainty weighting** to handle ambiguous answers  
 - Open, extensible code for interactive preference search
 
-> _In simulation with synthetic ground truth, the method accurately recovers preference maps and optima, outperforming uniform sampling in sample efficiency._
-
-
 ![UI Demo](image.png)
 
 ## Quick Start
