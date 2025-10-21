@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Styled Tkinter interface for the audio preference learning application.
+Styled Tkinter interface for the haptic preference learning application.
 
 This UI keeps the same behaviour as the classic interface but presents controls
 in a more polished layout tailored for user studies.
@@ -55,7 +55,7 @@ class AudioPreferenceStudyApp:
         fixed_mode: Optional[SessionMode] = None,
     ) -> None:
         self.root = root
-        self.root.title("Audio Preference Learning — Study UI")
+        self.root.title("Haptic Preference Learning — Study UI")
         self.root.geometry("1600x980")
         self.root.minsize(1320, 860)
         self.root.configure(bg="#f3f4f8")
@@ -77,8 +77,8 @@ class AudioPreferenceStudyApp:
         self.iter_var = tk.StringVar(value="0")
         self.last_pick_var = tk.StringVar(value="Last choice: N/A")
         self.rec_best_var = tk.StringVar(value="Rec*: N/A")
-        self.cand_var_A = tk.StringVar(value="Audio A: pending")
-        self.cand_var_B = tk.StringVar(value="Audio B: pending")
+        self.cand_var_A = tk.StringVar(value="Haptic A: pending")
+        self.cand_var_B = tk.StringVar(value="Haptic B: pending")
 
         # Widgets cached for state updates
         self.progress: Optional[ttk.Progressbar] = None
@@ -161,7 +161,7 @@ class AudioPreferenceStudyApp:
         header.pack(fill=tk.X, pady=(0, 14))
         header_row = ttk.Frame(header, style="Study.TFrame")
         header_row.pack(fill=tk.X)
-        ttk.Label(header_row, text="Audio Preference Learning", style="Title.TLabel").pack(
+        ttk.Label(header_row, text="Haptic Preference Learning", style="Title.TLabel").pack(
             side=tk.LEFT, anchor="w"
         )
         branding = ttk.Frame(header_row, style="Study.TFrame")
@@ -188,7 +188,7 @@ class AudioPreferenceStudyApp:
 
         ttk.Label(
             header,
-            text="Interactive Gaussian-process audio preference exploration",
+            text="Interactive Gaussian-process haptic preference exploration",
             style="Subtitle.TLabel",
         ).pack(anchor="w", pady=(4, 0))
 
@@ -298,7 +298,7 @@ class AudioPreferenceStudyApp:
 
         audioA = ttk.Frame(audio_row, style="Panel.TFrame")
         audioA.pack(side=tk.LEFT, expand=True, fill=tk.BOTH, padx=(0, 10))
-        ttk.Label(audioA, text="Audio A", style="CardTitle.TLabel").pack(anchor="w")
+        ttk.Label(audioA, text="Haptic A", style="CardTitle.TLabel").pack(anchor="w")
         self.playA = ttk.Button(audioA, text="▶ Play A", style="Secondary.TButton", command=lambda: self._play(1))
         self.playA.pack(fill=tk.X, pady=(6, 0))
         self.chooseA = ttk.Button(
@@ -312,7 +312,7 @@ class AudioPreferenceStudyApp:
 
         audioB = ttk.Frame(audio_row, style="Panel.TFrame")
         audioB.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-        ttk.Label(audioB, text="Audio B", style="CardTitle.TLabel").pack(anchor="w")
+        ttk.Label(audioB, text="Haptic B", style="CardTitle.TLabel").pack(anchor="w")
         self.playB = ttk.Button(audioB, text="▶ Play B", style="Secondary.TButton", command=lambda: self._play(2))
         self.playB.pack(fill=tk.X, pady=(6, 0))
         self.chooseB = ttk.Button(
@@ -546,8 +546,8 @@ class AudioPreferenceStudyApp:
             self.progress.configure(maximum=self.session.state.max_iterations, value=0)
         self.last_pick_var.set("Last choice: N/A")
         self.rec_best_var.set("Rec*: N/A")
-        self.cand_var_A.set("Audio A: pending")
-        self.cand_var_B.set("Audio B: pending")
+        self.cand_var_A.set("Haptic A: pending")
+        self.cand_var_B.set("Haptic B: pending")
         self.level_var.set(3)
         self._on_level_changed(self.level_var.get())
         self.current_candidate = None
@@ -595,8 +595,8 @@ class AudioPreferenceStudyApp:
         self.iter_indicator_var.set(f"0 / {self.session.state.max_iterations}")
         self.last_pick_var.set("Last choice: N/A")
         self.rec_best_var.set("Rec*: N/A")
-        self.cand_var_A.set("Audio A: pending")
-        self.cand_var_B.set("Audio B: pending")
+        self.cand_var_A.set("Haptic A: pending")
+        self.cand_var_B.set("Haptic B: pending")
         self.level_var.set(3)
         self._on_level_changed(self.level_var.get())
         self._exported_data = False
@@ -677,7 +677,7 @@ class AudioPreferenceStudyApp:
         if self.session.state.mode is not SessionMode.USER or not self.current_candidate:
             return
         if self.selected_choice not in ("A", "B"):
-            messagebox.showwarning("Notice", "Please select a preferred audio first.")
+            messagebox.showwarning("Notice", "Please select a preferred haptic first.")
             return
         try:
             self.session.audio.stop_audio()
@@ -741,16 +741,16 @@ class AudioPreferenceStudyApp:
 
     def _play(self, which: int) -> None:
         if which not in (1, 2) or which not in self.current_audio_data:
-            messagebox.showwarning("Notice", "Start the session to load audio clips.")
+            messagebox.showwarning("Notice", "Start the session to load haptic clips.")
             return
         try:
             self.session.audio.stop_audio()
             data = self.current_audio_data[which]["x"]
             ok = self.session.audio.play_audio(data, blocking=False)
             if not ok:
-                messagebox.showwarning("Audio", "Playback failed. Please check the audio device.")
+                messagebox.showwarning("Haptic", "Playback failed. Please check the haptic device.")
         except Exception as exc:
-            messagebox.showerror("Audio error", str(exc))
+            messagebox.showerror("Haptic error", str(exc))
 
     def _persist_study_data(self) -> None:
         if self._exported_data:
@@ -894,11 +894,11 @@ class AudioPreferenceStudyApp:
             x1 = self.current_audio_data[1]["x"]
             t2 = self.current_audio_data[2]["t"]
             x2 = self.current_audio_data[2]["x"]
-            ax.plot(t1, x1, label="Audio A", linewidth=1.2)
-            ax.plot(t2, x2, label="Audio B", linewidth=1.2, alpha=0.85)
+            ax.plot(t1, x1, label="Haptic A", linewidth=1.2)
+            ax.plot(t2, x2, label="Haptic B", linewidth=1.2, alpha=0.85)
             ax.legend()
         else:
-            ax.text(0.5, 0.5, "No audio yet — start the session", ha="center", va="center")
+            ax.text(0.5, 0.5, "No haptic yet — start the session", ha="center", va="center")
             ax.set_xlim(0, 1)
             ax.set_ylim(-1, 1)
         ax.set_title("Current waveforms")
@@ -1027,7 +1027,7 @@ class AudioPreferenceStudyApp:
 
 
 def main() -> int:
-    print("Audio Preference Learning — Study UI")
+    print("Haptic Preference Learning — Study UI")
     print("=" * 48)
     try:
         root = tk.Tk()
@@ -1040,7 +1040,7 @@ def main() -> int:
 
 
 def user_main() -> int:
-    print("Audio Preference Learning — Study UI (User Study)")
+    print("Haptic Preference Learning — Study UI (User Study)")
     print("=" * 60)
     try:
         root = tk.Tk()
@@ -1053,7 +1053,7 @@ def user_main() -> int:
 
 
 def test_main() -> int:
-    print("Audio Preference Learning — Study UI (Auto Test)")
+    print("Haptic Preference Learning — Study UI (Auto Test)")
     print("=" * 58)
     try:
         root = tk.Tk()
