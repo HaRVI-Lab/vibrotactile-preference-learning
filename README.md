@@ -2,8 +2,6 @@
 
 [中文版](README_zh-CN.md)
 
-### What is this?
-
 This repo provides a **preference-based haptic personalization** framework that learns a user’s latent utility from **binary A/B choices**. We use a **Gaussian Process (GP) preference model** to capture smoothness and uncertainty over the stimulus space, and an **active query policy** that maximizes **expected information gain** to pick the next comparison. Users can report **response uncertainty**, which is used as per-comparison weights to down-weight ambiguous judgments. By emphasizing **relative** (not absolute) evaluations, the system reduces rating fatigue and drift and avoids forcing tactile sensations onto a numeric scale.
 
 **Highlights**
