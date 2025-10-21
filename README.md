@@ -2,11 +2,18 @@
 
 [中文版](README_zh-CN.md)
 
-Personalizing haptic feedback is difficult because users struggle to assign absolute satisfaction scores. We introduce a preference-based method that infers a user’s latent utility surface from binary pairwise comparisons (A/B choices). A Gaussian Process (GP) preference model encodes smoothness and posterior uncertainty over the stimulus space, while an active query policy selects comparisons by maximizing expected information gain. We incorporate self-reported response uncertainty as per-comparison weights to down-weight ambiguous judgments. By emphasizing relative rather than absolute evaluations, the system mitigates rating fatigue and drift and avoids forcing users to map tactile sensations onto a numeric scale. In simulation with synthetic ground-truth preferences, the method accurately recovers preference maps and optima, achieving higher sample efficiency than uniform/query-agnostic sampling. We also release an open-source framework for interactive preference search over haptic signals.
-Contributions.
-(i) A binary, preference-driven learning approach to haptic personalization that reduces user fatigue and rating drift;
-(ii) An interaction loop that weights comparisons by user-reported uncertainty to improve search efficiency;
-(iii) An open-source, extensible code framework for interactive preference search over haptic signals.
+### What is this?
+
+This repo provides a **preference-based haptic personalization** framework that learns a user’s latent utility from **binary A/B choices**. We use a **Gaussian Process (GP) preference model** to capture smoothness and uncertainty over the stimulus space, and an **active query policy** that maximizes **expected information gain** to pick the next comparison. Users can report **response uncertainty**, which is used as per-comparison weights to down-weight ambiguous judgments. By emphasizing **relative** (not absolute) evaluations, the system reduces rating fatigue and drift and avoids forcing tactile sensations onto a numeric scale.
+
+**Highlights**
+- GP preference learning over haptic stimuli (uncertainty-aware, smoothness prior)  
+- Information-gain active querying for sample-efficient searches  
+- Per-comparison **uncertainty weighting** to handle ambiguous answers  
+- Open, extensible code for interactive preference search
+
+> _In simulation with synthetic ground truth, the method accurately recovers preference maps and optima, outperforming uniform sampling in sample efficiency._
+
 
 
 ### What is this?
