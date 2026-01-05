@@ -120,3 +120,68 @@ def generate_tone_signal(
     }
 
     return time, data, for_plot
+
+
+def generate_xbox_signal(
+    amplitude: float,
+    frequency: float,
+    density: float,
+    gradient: float,
+    duration: float,
+    sample_rate: int = 100,
+):
+    """
+    Dual-channel haptic control signal for Xbox controllers.
+
+    Returns a stereo array where column 0 targets the heavy/low-frequency motor
+    and column 1 targets the light/high-frequency motor.
+    """
+    amp_norm = float(np.clip(amplitude / 100.0, 0.0, 1.0))
+    freq_norm = float(np.clip(frequency / 100.0, 0.0, 1.0))
+    dens_norm = float(np.clip(density / 100.0, 0.0, 1.0))
+
+    n_samples = max(int(duration * sample_rate), 1)
+    t = np.linspace(0.0, float(duration), n_samples, endpoint=False)
+
+    # Balance left/right using constant-power panning.
+    left_gain = np.cos(freq_norm * np.pi / 2.0)
+    right_gain = np.sin(freq_norm * np.pi / 2.0)
+
+    # Texture modulation from density with explicit duty cycle to create rhythm.
+    if dens_norm < 0.08:
+        texture_mod = np.ones_like(t)
+    else:
+        mod_freq = 3.0 + dens_norm * 9.0  # 3–12 Hz pulses
+        duty = 0.75 - dens_norm * 0.45  # 0.30–0.75 duty cycle
+        phase = 0.5 * (1.0 + np.sin(2 * np.pi * mod_freq * t))
+        texture_mod = np.where(phase >= 1.0 - duty, 1.0, 0.15)
+        if dens_norm > 0.75:
+            jitter = np.random.uniform(-0.12, 0.12, size=len(t))
+            texture_mod = texture_mod + jitter
+    texture_mod = np.clip(texture_mod, 0.0, 1.0)
+
+    # Envelope from gradient.
+    if gradient == 0:
+        envelope = np.ones_like(t)
+    else:
+        grad_norm = float(np.clip(gradient / 100.0, -1.0, 1.0))
+        slope = np.linspace(0.0, 1.0, n_samples)
+        if grad_norm > 0:
+            start_val = 1.0 - grad_norm
+            envelope = start_val + (1.0 - start_val) * slope
+        else:
+            end_val = 1.0 + grad_norm
+            envelope = 1.0 - (1.0 - end_val) * slope
+    envelope = np.clip(envelope, 0.0, 1.0)
+
+    master = np.clip(amp_norm * 0.6 * envelope * texture_mod, 0.0, 1.0)
+    data_left = master * left_gain
+    data_right = master * right_gain
+    data = np.column_stack((data_left, data_right))
+
+    # Provide a smoothed plot waveform for nicer visualization.
+    window = np.ones(max(int(sample_rate * 0.08), 3))
+    window /= window.sum()
+    plot_waveform = np.convolve(master * max(left_gain, right_gain, 1e-6), window, mode="same")
+    meta = {"fs": sample_rate, "plot_waveform": plot_waveform}
+    return t, data, meta
