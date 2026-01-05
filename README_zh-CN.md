@@ -10,8 +10,8 @@ English README: [README.md](README.md)
 - **逐次比较加权**（融合用户不确定度）稳健处理模糊答案
 - 覆盖用户实验、自动测试与喜好信号记录的完整 UI
 
-![UI Demo](image.png)
-
+![UI Demo](image1.png)
+![UI Demo](image2.png)
 ## 快速上手
 1. 克隆仓库：
    ```bash

@@ -10,8 +10,8 @@ This repo provides a **preference-based haptic personalization** framework that 
 - Per-comparison **uncertainty weighting** to handle ambiguous answers
 - End-to-end UI for user study, auto-test, and favorite-signal capture
 
-![UI Demo](image.png)
-
+![UI Demo](image1.png)
+![UI Demo](image2.png)
 ## Quick Start
 1. Clone the repo:
    ```bash

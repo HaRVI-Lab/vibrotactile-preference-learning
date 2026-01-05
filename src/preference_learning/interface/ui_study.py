@@ -25,7 +25,7 @@ import matplotlib.style
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-DEFAULT_MAX_ITERS = 4
+DEFAULT_MAX_ITERS = 40
 
 # Use default (light) style
 matplotlib.style.use('default')
