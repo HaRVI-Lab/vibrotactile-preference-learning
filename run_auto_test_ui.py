@@ -70,7 +70,7 @@ def main() -> int:
     parser.add_argument(
         "--gt",
         type=str,
-        default="offset",
+        default="center",
         #default="center",
         help="Ground-truth kind: center|offset|bimodal|ridge or full label.",
     )
