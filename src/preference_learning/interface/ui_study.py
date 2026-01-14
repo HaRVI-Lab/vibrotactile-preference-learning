@@ -571,7 +571,7 @@ class AudioPreferenceStudyApp:
         self.card_session.pack(fill=tk.X, pady=10)
         self.iter_label = tk.Label(
             self.card_session,
-            text=f"Iteration: 0 / {DEFAULT_MAX_ITERS}",
+            text=f"Iteration: 1 / {DEFAULT_MAX_ITERS}",
             bg=COLOR_PANEL,
             fg=COLOR_ACCENT,
             font=("Helvetica", 16, "bold"),
@@ -595,7 +595,7 @@ class AudioPreferenceStudyApp:
         
         self.btn_play_a = GameButton(
             play_row,
-            "▶ Play A (X)",
+            "▶ Play A",
             command=lambda: self._play(1),
             on_focus=lambda: self._set_wave_display(1),
             width=180,
@@ -605,7 +605,7 @@ class AudioPreferenceStudyApp:
         
         self.btn_play_b = GameButton(
             play_row,
-            "▶ Play B (Y)",
+            "▶ Play B",
             command=lambda: self._play(2),
             on_focus=lambda: self._set_wave_display(2),
             width=180,
@@ -747,8 +747,12 @@ class AudioPreferenceStudyApp:
             total = max(1, self.session.state.validation_rounds)
             self.iter_label.config(text=f"Validation Round {idx} / {total}")
         else:
+            display_iter = self.session.state.current_iteration + 1
+            display_total = max(1, self.session.state.max_iterations)
+            if display_iter > display_total:
+                display_iter = display_total
             self.iter_label.config(
-                text=f"Iteration: {self.session.state.current_iteration} / {self.session.state.max_iterations}"
+                text=f"Iteration: {display_iter} / {display_total}"
             )
 
     # --- Session Logic ---
@@ -826,7 +830,7 @@ class AudioPreferenceStudyApp:
         self.btn_choose_a.set_state("disabled")
         self.btn_choose_b.set_state("disabled")
         self._update_submit_state()
-        self.iter_label.config(text=f"Iteration: 0 / {DEFAULT_MAX_ITERS}")
+        self.iter_label.config(text=f"Iteration: 1 / {DEFAULT_MAX_ITERS}")
         self._log_raw("System", "Session Reset.")
         self._exported_data = False
         self._reset_map_cache()

@@ -454,10 +454,10 @@ class XboxVibrationApp:
         notes_inner = tk.Frame(notes_card, bg=COLOR_PANEL)
         notes_inner.pack(fill=tk.X, padx=12, pady=10)
         for line in (
-            "Intensity: overall vibration strength; higher feels stronger.",
-            "Texture/Balance: left-right motor mix; shifts where the vibration feels.",
-            "Rhythm: how fast the pulses repeat; higher feels faster.",
-            "Grain: how long each pulse stays on; higher feels fuller and smoother.",
+            "Intensity: The overall strength or power of the vibration.",
+            "Balance: The spatial distribution or texture balance of the feedback.",
+            "Rhythm: The pattern or frequency of the vibration pulses.",
+            "Grain: The duration of the vibration pulse within a single cycle.",
         ):
             tk.Label(
                 notes_inner,
