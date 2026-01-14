@@ -189,6 +189,7 @@ class XboxVibrationApp:
         output_dir=None,
         output_filename="favorite_signal.json",
         complete_on_record: bool = False,
+        aggregate_records: bool = False,
         max_records: int = 3,
     ):
         self.root = root
@@ -210,10 +211,13 @@ class XboxVibrationApp:
         self.output_dir = Path(output_dir) if output_dir else None
         self.output_filename = output_filename
         self.complete_on_record = complete_on_record
+        self.aggregate_records = bool(aggregate_records)
         self.max_records = max(1, int(max_records))
         self.record_count = 0
         self.record_paths = []
         self.record_status_var = tk.StringVar(value=f"Favorites recorded: 0/{self.max_records}")
+        self._aggregate_records = []
+        self._aggregate_path = None
 
         # live preview debounce
         self._preview_after_id = None
@@ -569,6 +573,21 @@ class XboxVibrationApp:
         base_dir.mkdir(parents=True, exist_ok=True)
         return self._next_index_path(base_dir)
 
+    def _resolve_aggregate_path(self) -> Path:
+        if self._aggregate_path is not None:
+            return self._aggregate_path
+        if self.output_dir is not None:
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            candidate = self.output_dir / self.output_filename
+            if candidate.exists():
+                candidate = self._unique_named_path(self.output_dir, self.output_filename)
+            self._aggregate_path = candidate
+            return candidate
+        base_dir = Path.cwd() / "data" / "bestparam"
+        base_dir.mkdir(parents=True, exist_ok=True)
+        self._aggregate_path = self._unique_named_path(base_dir, self.output_filename)
+        return self._aggregate_path
+
     def record_params(self):
         try:
             if self.record_count >= self.max_records:
@@ -577,10 +596,21 @@ class XboxVibrationApp:
             record_index = self.record_count + 1
             payload["favorite_index"] = int(record_index)
             payload["favorite_total"] = int(self.max_records)
-            out_path = self._resolve_output_path(record_index)
-            out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            if self.aggregate_records:
+                out_path = self._resolve_aggregate_path()
+                self._aggregate_records.append(payload)
+                aggregate_payload = {
+                    "favorite_total": int(self.max_records),
+                    "recorded": int(len(self._aggregate_records)),
+                    "favorites": self._aggregate_records,
+                }
+                out_path.write_text(json.dumps(aggregate_payload, indent=2), encoding="utf-8")
+            else:
+                out_path = self._resolve_output_path(record_index)
+                out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
             self.record_count += 1
-            self.record_paths.append(str(out_path))
+            if str(out_path) not in self.record_paths:
+                self.record_paths.append(str(out_path))
             self._update_record_ui()
             if self.record_count >= self.max_records:
                 if self.complete_on_record:
@@ -902,6 +932,11 @@ def main(argv=None):
         action="store_true",
         help="Show completion dialog after recording and close the window.",
     )
+    parser.add_argument(
+        "--single-file",
+        action="store_true",
+        help="Store all recorded favorites in one JSON file.",
+    )
     args = parser.parse_args(argv)
 
     root = tk.Tk()
@@ -910,6 +945,7 @@ def main(argv=None):
         output_dir=args.output_dir,
         output_filename=args.filename,
         complete_on_record=args.complete_dialog,
+        aggregate_records=args.single_file,
     )
     root.protocol("WM_DELETE_WINDOW", app.on_close)
     root.mainloop()

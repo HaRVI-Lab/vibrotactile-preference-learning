@@ -49,13 +49,14 @@ def main() -> int:
 
     if data_dir is None:
         print("No session data folder found; recording will go to data/bestparam/.")
-        return xbox_main(["--complete-dialog"])
+        return xbox_main(["--complete-dialog", "--single-file"])
     return xbox_main(
         [
             "--output-dir",
             str(data_dir),
             "--filename",
             "favorite_signal.json",
+            "--single-file",
             "--complete-dialog",
         ]
     )

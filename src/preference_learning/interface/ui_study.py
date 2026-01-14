@@ -357,6 +357,7 @@ class GameButton(tk.Frame):
         super().__init__(parent, bg=bg, highlightbackground=COLOR_BORDER, highlightthickness=1, relief="flat")
         self.command = command
         self.on_focus_cb = on_focus
+        self._flash_job: Optional[str] = None
         
         self.bg_normal = bg
         self.bg_focus = "#fef3c7" # Light yellow for focus bg
@@ -388,9 +389,32 @@ class GameButton(tk.Frame):
     def invoke(self):
         if self.state != "disabled" and self.command:
             # Click flash
+            if self._flash_job is not None:
+                try:
+                    self.after_cancel(self._flash_job)
+                except Exception:
+                    pass
+                self._flash_job = None
             self.label.configure(fg=COLOR_ACCENT)
-            self.after(100, lambda: self.label.configure(fg=self.fg_focus if self['highlightthickness'] > 1 else self.fg_normal))
+            self._flash_job = self.after(100, self._clear_flash)
             self.command()
+
+    def _clear_flash(self):
+        self._flash_job = None
+        if not self.winfo_exists() or not self.label.winfo_exists():
+            return
+        self.label.configure(
+            fg=self.fg_focus if self['highlightthickness'] > 1 else self.fg_normal
+        )
+
+    def destroy(self):
+        if self._flash_job is not None:
+            try:
+                self.after_cancel(self._flash_job)
+            except Exception:
+                pass
+            self._flash_job = None
+        super().destroy()
 
     def set_state(self, state: str):
         self.state = state
@@ -936,8 +960,11 @@ class AudioPreferenceStudyApp:
     def _finish_session(self):
         self._log_raw("System", "Session Complete!")
         if self._auto_close_on_complete:
-            self._persist_study_data(status="complete")
-            self._on_close()
+            self._show_recommendation_dialog(
+                title="User Study Complete",
+                header="User Study Complete. Thank you!",
+                on_close=self._finalize_and_close,
+            )
             return
         self._show_recommendation_dialog(
             title="User Study Complete",
@@ -948,6 +975,10 @@ class AudioPreferenceStudyApp:
     def _finalize_user_session(self):
         self._persist_study_data(status="complete")
         self._reset()
+
+    def _finalize_and_close(self):
+        self._persist_study_data(status="complete")
+        self._on_close()
 
     # --- Logging Helpers (Restored) ---
     def _log_raw(self, tag, msg):
