@@ -34,19 +34,28 @@ This repo provides a **preference-based haptic personalization** framework that 
    python run_auto_test_ui.py  # automated test workflow
    python xbox_control.py      # standalone favorite capture
    ```
-5. Press **Start Session** in the UI. In user mode, play A/B (X/Y), choose A/B, and rate uncertainty (1-5). In auto-test mode, the system simulates preferences via a ground-truth function.
-6. When a session completes, results are exported to `data/YYYYMMDD_<index>/session.json` and `log.txt`.
+5. Press **Start Session** in the UI. In user mode, use the gamepad controls below; auto-test mode simulates preferences via a ground-truth function.
+6. When a session completes, Phase 1 exports `session.json` and `log.txt`, and Phase 2 writes a single `favorite_signal.json` (when using `run_study.py`).
+
+## Controls (User Study UI)
+- D-pad/left stick: move focus
+- X: activate focused button (confirm)
+- A: play candidate A
+- B: play candidate B
+- Start: start session (when available)
 
 ## Outputs
-- `data/YYYYMMDD_<index>/session.json` + `log.txt`: preference history, GP metrics, and final summary.
-- `data/YYYYMMDD_<index>/favorite_signal.json`: saved by `run_study.py` after you record the favorite signal.
-- `data/bestparam/###.json`: saved when running `xbox_control.py` standalone.
+- Phase 1 (user study): `data/YYYYMMDD_<index>/session.json` + `log.txt` with preference history, GP metrics, and final summary.
+- Phase 2 (favorite tuning after `run_study.py`): `data/YYYYMMDD_<index>/favorite_signal.json` as a single file.
+- Standalone favorite tuning (`xbox_control.py`): `data/bestparam/###.json` by default (or a single file when using `--single-file` and/or `--output-dir`).
 
 ## Configuration
 - User-study iterations: `DEFAULT_MAX_ITERS` in `src/preference_learning/interface/ui_study.py`.
 - Auto-test iterations: `--iters` in `run_auto_test_ui.py` (default 40).
 - Ground-truth model: `--gt` (`center|offset|bimodal|ridge`).
 - Parameter ranges: `--ranges` accepts JSON with keys `intensity|texture|rhythm|grain` (legacy keys are accepted too).
+- Auto-test seed: `--seed` (omit for random).
+- Auto-test plotting: `--plot-res`, `--plot-every`, `--plot-min-s`.
 
 ## Requirements
 - Python 3.8+ with Tkinter.

@@ -1,6 +1,7 @@
 import argparse
 import json
 import tkinter as tk
+import tkinter.font as tkfont
 from datetime import datetime
 from pathlib import Path
 from tkinter import ttk, messagebox
@@ -194,7 +195,7 @@ class XboxVibrationApp:
     ):
         self.root = root
         self.root.title("Haptic Preference Learning")
-        self.root.geometry("1120x840")
+        self.root.geometry("1280x800")
         self.root.configure(bg=COLOR_BG)
 
         self.closing = False
@@ -348,7 +349,7 @@ class XboxVibrationApp:
         content = tk.Frame(self.root, bg=COLOR_BG)
         content.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
-        left_panel = tk.Frame(content, bg=COLOR_BG, width=380)
+        left_panel = tk.Frame(content, bg=COLOR_BG, width=460)
         left_panel.pack(side=tk.LEFT, fill=tk.Y, padx=(0, 20))
         left_panel.pack_propagate(False)
 
@@ -453,21 +454,58 @@ class XboxVibrationApp:
         notes_card = self._make_card(left_panel, "Parameter Notes")
         notes_inner = tk.Frame(notes_card, bg=COLOR_PANEL)
         notes_inner.pack(fill=tk.X, padx=12, pady=10)
-        for line in (
+        notes_lines = (
             "Intensity: The overall strength or power of the vibration.",
             "Balance: The spatial distribution or texture balance of the feedback.",
             "Rhythm: The pattern or frequency of the vibration pulses.",
             "Grain: The duration of the vibration pulse within a single cycle.",
-        ):
-            tk.Label(
+        )
+        notes_font = tkfont.Font(family="Helvetica", size=10)
+        notes_labels = []
+        for line in notes_lines:
+            label = tk.Label(
                 notes_inner,
                 text=line,
                 bg=COLOR_PANEL,
                 fg=COLOR_TEXT,
-                font=("Helvetica", 10),
+                font=notes_font,
                 anchor="w",
                 justify="left",
-            ).pack(anchor="w")
+            )
+            label.pack(fill=tk.X, anchor="w")
+            notes_labels.append(label)
+
+        def _ellipsize(text: str, max_width: int) -> str:
+            if notes_font.measure(text) <= max_width:
+                return text
+            ellipsis = "..."
+            room = max(0, max_width - notes_font.measure(ellipsis))
+            trimmed = text
+            while trimmed and notes_font.measure(trimmed) > room:
+                trimmed = trimmed[:-1]
+            return (trimmed.rstrip() + ellipsis) if trimmed else ellipsis
+
+        def _fit_notes(event):
+            if event.width <= 1:
+                return
+            available = max(140, event.width - 4)
+            base_size = 10
+            min_size = 8
+            notes_font.configure(size=base_size)
+            size = base_size
+            max_width = max(notes_font.measure(line) for line in notes_lines)
+            while size > min_size and max_width > available:
+                size -= 1
+                notes_font.configure(size=size)
+                max_width = max(notes_font.measure(line) for line in notes_lines)
+            if max_width > available:
+                for label, line in zip(notes_labels, notes_lines):
+                    label.configure(text=_ellipsize(line, available))
+            else:
+                for label, line in zip(notes_labels, notes_lines):
+                    label.configure(text=line)
+
+        notes_inner.bind("<Configure>", _fit_notes)
 
         self.graph_frame = tk.LabelFrame(
             right_panel,

@@ -445,7 +445,7 @@ class AudioPreferenceStudyApp:
         auto_close_on_complete: bool = False,
     ):
         self.root = root
-        self.root.title("Haptic Preference Learning — Gamepad UI")
+        self.root.title("Haptic Preference Learning")
         self.root.geometry("1280x800")
         self.root.configure(bg=COLOR_BG)
         
@@ -665,7 +665,7 @@ class AudioPreferenceStudyApp:
             b.pack(side=tk.LEFT, padx=4)
             self.unc_btns.append(b)
 
-        self.btn_submit = GameButton(left_panel, "SUBMIT CHOICE (RB)", command=self._submit, width=400, height=60, bg=COLOR_ACCENT, fg="#ffffff")
+        self.btn_submit = GameButton(left_panel, "SUBMIT CHOICE", command=self._submit, width=400, height=60, bg=COLOR_ACCENT, fg="#ffffff")
         self.btn_submit.pack(pady=20)
         self.btn_submit.set_state("disabled")
 
@@ -866,6 +866,7 @@ class AudioPreferenceStudyApp:
             entry = self.current_audio_data.get(which, {})
             if not entry:
                 return
+            self._set_wave_display(which)
             self.session.audio.play_audio(entry.get("x"), metadata=entry.get("meta"), blocking=False)
         except Exception as e:
             self._log_raw("Error", f"Audio: {e}")
@@ -1632,10 +1633,10 @@ class AudioPreferenceStudyApp:
                 elif evt_type == "BTN_DOWN":
                     idx = data
                     # Standard Xbox: A=0, B=1, X=2, Y=3, LB=4, RB=5, Back=6, Start=7
-                    if idx == 0: self.focus_manager.activate_current() # A
-                    elif idx == 2: # X
+                    if idx == 2: self.focus_manager.activate_current() # X
+                    elif idx == 0: # A
                         if self.btn_play_a.state == "normal": self._play(1)
-                    elif idx == 3: # Y
+                    elif idx == 1: # B
                         if self.btn_play_b.state == "normal": self._play(2)
                     elif idx == 5: # RB
                         if self.btn_submit.state == "normal": self._submit()

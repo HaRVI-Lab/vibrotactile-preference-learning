@@ -34,19 +34,28 @@ English README: [README.md](README.md)
    python run_auto_test_ui.py  # 自动测试流程
    python xbox_control.py      # 独立记录最喜欢的信号
    ```
-5. 在 UI 中点击 **Start Session**。用户实验模式下，播放 A/B（X/Y），选择 A/B，并给出不确定度等级（1-5）；自动测试模式会使用地面真值函数自动迭代。
-6. 会话完成后，数据会导出到 `data/YYYYMMDD_序号/session.json` 与 `log.txt`。
+5. 在 UI 中点击 **Start Session**。用户实验模式下按下方手柄操作进行；自动测试模式会使用地面真值函数自动迭代。
+6. 会话完成后，Phase 1 导出 `session.json` 与 `log.txt`，Phase 2 生成一个 `favorite_signal.json`（使用 `run_study.py` 时）。
+
+## 操作方式（用户实验界面）
+- 方向键/左摇杆：移动焦点
+- X：确认/激活当前按钮
+- A：播放候选 A
+- B：播放候选 B
+- Start：开始会话（可用时）
 
 ## 输出文件
-- `data/YYYYMMDD_序号/session.json` + `log.txt`：偏好历史、GP 指标与最终摘要。
-- `data/YYYYMMDD_序号/favorite_signal.json`：使用 `run_study.py` 记录的最喜好信号。
-- `data/bestparam/###.json`：单独运行 `xbox_control.py` 时的保存位置。
+- Phase 1（用户实验）：`data/YYYYMMDD_序号/session.json` + `log.txt`，包含偏好历史、GP 指标与最终摘要。
+- Phase 2（`run_study.py` 的喜好信号记录）：`data/YYYYMMDD_序号/favorite_signal.json`，单文件输出。
+- 单独运行 `xbox_control.py`：默认保存到 `data/bestparam/###.json`（若使用 `--single-file` 和/或 `--output-dir` 则输出为单文件）。
 
 ## 配置说明
 - 用户实验轮数：`src/preference_learning/interface/ui_study.py` 中的 `DEFAULT_MAX_ITERS`。
 - 自动测试轮数：`run_auto_test_ui.py` 的 `--iters`（默认 40）。
 - 地面真值模型：`--gt`（`center|offset|bimodal|ridge`）。
 - 参数范围：`--ranges` 支持 JSON，键名使用 `intensity|texture|rhythm|grain`（也兼容旧键名）。
+- 自动测试随机种子：`--seed`（不传则随机）。
+- 自动测试绘图：`--plot-res`、`--plot-every`、`--plot-min-s`。
 
 ## 运行环境
 - Python 3.8+，需包含 Tkinter。
