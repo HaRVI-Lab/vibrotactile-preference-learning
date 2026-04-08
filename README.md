@@ -1,4 +1,4 @@
-# Haptic Preference Learning (HPL)
+# Vibrotactile Preference Learning (VPL)
 
 [中文版](README_zh-CN.md)
 
