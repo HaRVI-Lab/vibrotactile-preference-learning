@@ -12,7 +12,7 @@ University of Southern California
 
 This repository contains the implementation of Vibrotactile Preference Learning (VPL), a confidence-aware preference learning framework for personalizing vibrotactile feedback through pairwise comparisons.
 
-![VPL teaser figure](teaser_fig.png)
+![VPL teaser figure](teaser_fig.jpg)
 
 ## Overview
 

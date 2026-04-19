@@ -12,7 +12,7 @@
 
 本仓库提供 Vibrotactile Preference Learning（VPL）的完整实现。VPL 是一个面向振动反馈个性化的、结合用户不确定度信息的偏好学习框架，通过成对比较来学习用户的振动偏好。
 
-![VPL teaser figure](teaser_fig.png)
+![VPL teaser figure](teaser_fig.jpg)
 
 ## 项目概述
 
