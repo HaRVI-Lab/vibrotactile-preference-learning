@@ -10,6 +10,8 @@ Rongtao Zhang, Xin Zhu, Masoume Pourebadi Khotbehsara, Warren Dao, Erdem Biyik, 
 
 University of Southern California
 
+Website: https://isanshi.github.io/publication/vpl/
+
 This repository contains the implementation of Vibrotactile Preference Learning (VPL), a confidence-aware preference learning framework for personalizing vibrotactile feedback through pairwise comparisons.
 
 ![VPL teaser figure](teaser_fig.jpg)
