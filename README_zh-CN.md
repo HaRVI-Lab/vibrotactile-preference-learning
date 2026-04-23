@@ -223,7 +223,7 @@ data/bestparam/
 2. 如果需要进行真人实验，连接 Xbox 控制器。
 3. 运行 `python run_user_study_ui.py`，执行 40 轮主偏好学习过程。
 4. 如果还需要记录参与者最终最喜欢的振动信号，运行 `python run_study.py`。
-5. 在正式实验前或并行评估时，可运行 `python run_auto_test_ui.py` 对学习流程进行模拟验证和调试。
+可选：在正式实验前或并行评估时，可运行 `python run_auto_test_ui.py` 对学习流程进行模拟验证和调试。
 
 ## 引用
 
