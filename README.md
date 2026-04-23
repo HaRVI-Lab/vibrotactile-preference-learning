@@ -228,12 +228,14 @@ To reproduce the workflow described in the paper:
 If you use this code in academic work, please cite the paper:
 
 ```bibtex
-@inproceedings{zhang2026vpl,
-  title = {Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback},
-  author = {Zhang, Rongtao and Zhu, Xin and Pourebadi Khotbehsara, Masoume and Dao, Warren and Biyik, Erdem and Culbertson, Heather},
-  booktitle = {Proceedings of the 34th ACM Conference on User Modeling, Adaptation and Personalization (UMAP '26)},
-  year = {2026},
-  address = {Gothenburg, Sweden}
+@misc{zhang2026vibrotactilepreferencelearninguncertaintyaware,
+      title={Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback}, 
+      author={Rongtao Zhang and Xin Zhu and Masoume Pourebadi Khotbehsara and Warren Dao and Erdem Bıyık and Heather Culbertson},
+      year={2026},
+      eprint={2604.20210},
+      archivePrefix={arXiv},
+      primaryClass={cs.HC},
+      url={https://arxiv.org/abs/2604.20210}, 
 }
 ```
 
