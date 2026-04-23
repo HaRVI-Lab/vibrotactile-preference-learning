@@ -2,6 +2,8 @@
 
 [English README](README.md)
 
+项目网站：https://isanshi.github.io/publication/vpl/
+
 本仓库为 ACM UMAP 2026 论文的官方代码仓库：
 
 **Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback**
@@ -228,12 +230,14 @@ data/bestparam/
 如果本仓库对你的研究有帮助，请引用论文：
 
 ```bibtex
-@inproceedings{zhang2026vpl,
-  title = {Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback},
-  author = {Zhang, Rongtao and Zhu, Xin and Pourebadi Khotbehsara, Masoume and Dao, Warren and Biyik, Erdem and Culbertson, Heather},
-  booktitle = {Proceedings of the 34th ACM Conference on User Modeling, Adaptation and Personalization (UMAP '26)},
-  year = {2026},
-  address = {Gothenburg, Sweden}
+@misc{zhang2026vibrotactilepreferencelearninguncertaintyaware,
+      title={Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback}, 
+      author={Rongtao Zhang and Xin Zhu and Masoume Pourebadi Khotbehsara and Warren Dao and Erdem Bıyık and Heather Culbertson},
+      year={2026},
+      eprint={2604.20210},
+      archivePrefix={arXiv},
+      primaryClass={cs.HC},
+      url={https://arxiv.org/abs/2604.20210}, 
 }
 ```
 
