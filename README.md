@@ -221,7 +221,7 @@ To reproduce the workflow described in the paper:
 2. Connect an Xbox controller if you plan to run the human-participant workflow.
 3. Run `python run_user_study_ui.py` for the main 40-comparison preference-learning session.
 4. Run `python run_study.py` if you also want to collect the participant's final favorite vibration signal after the study.
-5. Run `python run_auto_test_ui.py` to debug or benchmark the learning pipeline against simulated preference functions before or alongside user testing.
+(Optional) Run `python run_auto_test_ui.py` to debug or benchmark the learning pipeline against simulated preference functions before or alongside user testing.
 
 ## Citation
 
