@@ -4,7 +4,7 @@
 
 Official code repository for the ACM UMAP 2026 paper:
 
-**Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback**
+[**Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback**](https://arxiv.org/abs/2604.20210)
 
 Rongtao Zhang, Xin Zhu, Masoume Pourebadi Khotbehsara, Warren Dao, Erdem Biyik, Heather Culbertson
 
