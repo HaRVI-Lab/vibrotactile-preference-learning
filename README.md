@@ -11,7 +11,6 @@ Rongtao Zhang, Xin Zhu, Masoume Pourebadi Khotbehsara, Warren Dao, Erdem Biyik, 
 University of Southern California
 
 [![Project Page](https://img.shields.io/badge/Project-Page-2f6f9f?style=for-the-badge)](https://isanshi.github.io/publication/vpl)
-[![Paper](https://img.shields.io/badge/Paper-PDF-b31b1b?style=for-the-badge)](https://isanshi.github.io/publication/vpl/VPL_UMAP26.pdf)
 [![arXiv](https://img.shields.io/badge/arXiv-2604.20210-b31b1b?style=for-the-badge)](https://arxiv.org/abs/2604.20210)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey?style=for-the-badge)](https://creativecommons.org/licenses/by/4.0/)
 
@@ -20,7 +19,7 @@ University of Southern California
 </div>
 
 <p align="center">
-  <img src="image1.png" alt="Vibrotactile Preference Learning interface and workflow" width="82%">
+  <img src="teaser_fig.jpg" alt="Vibrotactile Preference Learning teaser" width="82%">
 </p>
 
 ## Overview
@@ -165,12 +164,14 @@ Typical outputs include:
 If you use this code in academic work, please cite:
 
 ```bibtex
-@inproceedings{zhang2026vpl,
-  title = {Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback},
-  author = {Zhang, Rongtao and Zhu, Xin and Pourebadi Khotbehsara, Masoume and Dao, Warren and Biyik, Erdem and Culbertson, Heather},
-  booktitle = {Proceedings of the 34th ACM Conference on User Modeling, Adaptation and Personalization (UMAP '26)},
-  year = {2026},
-  address = {Gothenburg, Sweden}
+@misc{zhang2026vibrotactilepreferencelearninguncertaintyaware,
+      title={Vibrotactile Preference Learning: Uncertainty-Aware Preference Learning for Personalized Vibration Feedback}, 
+      author={Rongtao Zhang and Xin Zhu and Masoume Pourebadi Khotbehsara and Warren Dao and Erdem Bıyık and Heather Culbertson},
+      year={2026},
+      eprint={2604.20210},
+      archivePrefix={arXiv},
+      primaryClass={cs.HC},
+      url={https://arxiv.org/abs/2604.20210}, 
 }
 ```
 
@@ -181,3 +182,5 @@ This repository is released under the [Creative Commons Attribution 4.0 Internat
 ## Acknowledgements
 
 This project was developed at the University of Southern California as part of research on personalized haptic interaction and preference-based learning.
+
+This codebase references content from the [UUPL repository](https://github.com/capy8ra/UUPL).
