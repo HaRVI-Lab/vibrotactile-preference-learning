@@ -41,6 +41,10 @@ In our ACM UMAP 2026 study, VPL learns individualized vibration preferences with
   <img src="image2.png" alt="VPL interaction example" width="76%">
 </p>
 
+<p align="center">
+  <img src="image1.png" alt="VPL user interface and selection workflow" width="76%">
+</p>
+
 The user is repeatedly shown two candidate vibration signals. After choosing the preferred signal and reporting confidence, the model updates its posterior preference estimate and selects the next informative comparison.
 
 The stimulus space is parameterized by four vibrotactile dimensions:
