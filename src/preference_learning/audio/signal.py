@@ -8,10 +8,10 @@ import numpy as np
 
 
 def generate_tone_signal(
-    filler_amplitude: float,
-    filler_frequency: float,
-    filler_density: float,
-    filler_env_gradient: float,
+    intensity: float,
+    texture: float,
+    rhythm: float,
+    grain: float,
     duration: float,
     cycles: int,
     fs: float,
@@ -20,21 +20,27 @@ def generate_tone_signal(
     Generate a tone signal with the specified parameters.
 
     This function is a direct refactor of the original ``generateSignal6params`` module.
-    Behaviour and numerical operations remain unchanged.
+    Behaviour and numerical operations remain unchanged, but inputs are normalized
+    to [0, 1] to match the current parameter space.
     """
+    intensity_norm = float(np.clip(intensity, 0.0, 1.0))
+    texture_norm = float(np.clip(texture, 0.0, 1.0))
+    rhythm_norm = float(np.clip(rhythm, 0.0, 1.0))
+    grain_norm = float(np.clip(grain, 0.0, 1.0))
     pattern = {
         "filler": {
-            "amplitude": float(filler_amplitude),
-            "frequency": float(filler_frequency),
-            "density": float(filler_density),
-            "envelope": {"relative_gradient": float(filler_env_gradient)},
+            "intensity": intensity_norm,
+            "texture": texture_norm,
+            "rhythm": rhythm_norm,
+            "grain": grain_norm,
         },
         "duration": float(duration),
         "cycle": float(cycles),
     }
     fs = float(fs)
 
-    absolute_frequency = (250 - 50) / 100 * pattern["filler"]["frequency"] + 50
+    # Map normalized texture to the legacy tone synthesis frequency scale.
+    absolute_frequency = 90.0 + 160.0 * texture_norm
 
     if 110 < absolute_frequency <= 130:
         scale = (0.2 - 1) / (130 - 110) * absolute_frequency - (0.2 - 1) / (130 - 110) * 130 + 0.2
@@ -43,7 +49,7 @@ def generate_tone_signal(
     else:
         scale = 1
 
-    absolute_amplitude = pattern["filler"]["amplitude"] / 100 * scale
+    absolute_intensity = (0.2 + 0.8 * intensity_norm) * scale
 
     filler_time = np.arange(0, pattern["duration"], 1 / fs)
     len_signal = len(filler_time)
@@ -54,15 +60,15 @@ def generate_tone_signal(
     granularity = round(pattern["duration"] / nu, 3)
     pic = granularity / 5 * 2
 
-    if pattern["filler"]["density"] <= 50:
-        boundary = -pattern["filler"]["density"] / 50 + 1
+    # Preserve legacy rhythm shaping using normalized inputs.
+    if rhythm_norm <= 0.375:
+        boundary = 0.6 - 1.6 * rhythm_norm
         fade_number = round(pic * fs)
         upper = np.linspace(boundary, 1, fade_number)
         downer = np.linspace(1, boundary, fade_number)
     else:
-        fade_number = round(
-            ((0.1 - 1) / 50 * pattern["filler"]["density"] - (0.1 - 1) / 50 * 50 + 1) * pic * fs
-        )
+        fade_scale = 1.54 - 1.44 * rhythm_norm
+        fade_number = round(fade_scale * pic * fs)
         upper = np.linspace(0, 1, fade_number)
         before_upper = np.zeros(round(pic * fs - len(upper)))
         upper = np.concatenate([before_upper, upper])
@@ -87,12 +93,8 @@ def generate_tone_signal(
     elif len(envelope) > len_signal:
         raise ValueError("Envelope construction exceeded signal length.")
 
-    if pattern["filler"]["envelope"]["relative_gradient"] <= 0:
-        p1 = (100 + pattern["filler"]["envelope"]["relative_gradient"]) / 100
-        p2 = 1
-    else:
-        p1 = 1
-        p2 = (100 - pattern["filler"]["envelope"]["relative_gradient"]) / 100
+    p1 = 1
+    p2 = 0.8 * (1.0 - grain_norm)
 
     filler_env = np.linspace(p1, p2, len_signal)
 
@@ -102,9 +104,9 @@ def generate_tone_signal(
     fade_mask[: len(fm1)] = fm1
     fade_mask[-len(fm2) :] = fm2
 
-    base_filler = absolute_amplitude * np.sin(2 * np.pi * absolute_frequency * filler_time)
-    conv_density = base_filler * envelope
-    conv_envelope = conv_density * filler_env
+    base_filler = absolute_intensity * np.sin(2 * np.pi * absolute_frequency * filler_time)
+    conv_rhythm = base_filler * envelope
+    conv_envelope = conv_rhythm * filler_env
     conv_fade_mask = conv_envelope * fade_mask
 
     data = np.tile(conv_fade_mask, int(pattern["cycle"]))
@@ -114,8 +116,8 @@ def generate_tone_signal(
     time = np.round(time, 6)
 
     for_plot = {
-        "for_density": envelope * absolute_amplitude,
-        "for_envelope": filler_env * absolute_amplitude,
+        "for_rhythm": envelope * absolute_intensity,
+        "for_grain": filler_env * absolute_intensity,
         "filler_time": filler_time,
     }
 
@@ -123,10 +125,10 @@ def generate_tone_signal(
 
 
 def generate_xbox_signal(
-    amplitude: float,
-    frequency: float,
-    density: float,
-    gradient: float,
+    intensity: float,
+    texture: float,
+    rhythm: float,
+    grain: float,
     duration: float,
     sample_rate: int = 100,
 ):
@@ -136,45 +138,45 @@ def generate_xbox_signal(
     Returns a stereo array where column 0 targets the heavy/low-frequency motor
     and column 1 targets the light/high-frequency motor.
     """
-    amp_norm = float(np.clip(amplitude / 100.0, 0.0, 1.0))
-    freq_norm = float(np.clip(frequency / 100.0, 0.0, 1.0))
-    dens_norm = float(np.clip(density / 100.0, 0.0, 1.0))
+    intensity_norm = float(np.clip(intensity, 0.0, 1.0))
+    texture_norm = float(np.clip(texture, 0.0, 1.0))
+    rhythm_norm = float(np.clip(rhythm, 0.0, 1.0))
 
     n_samples = max(int(duration * sample_rate), 1)
     t = np.linspace(0.0, float(duration), n_samples, endpoint=False)
 
     # Balance left/right using constant-power panning.
-    left_gain = np.cos(freq_norm * np.pi / 2.0)
-    right_gain = np.sin(freq_norm * np.pi / 2.0)
+    left_gain = np.cos(texture_norm * np.pi / 2.0)
+    right_gain = np.sin(texture_norm * np.pi / 2.0)
 
-    # Texture modulation from density with explicit duty cycle to create rhythm.
-    if dens_norm < 0.08:
+    # Texture modulation from rhythm with explicit duty cycle to create pulses.
+    if rhythm_norm < 0.08:
         texture_mod = np.ones_like(t)
     else:
-        mod_freq = 3.0 + dens_norm * 9.0  # 3–12 Hz pulses
-        duty = 0.75 - dens_norm * 0.45  # 0.30–0.75 duty cycle
+        mod_freq = 3.0 + rhythm_norm * 9.0  # 3–12 Hz pulses
+        duty = 0.75 - rhythm_norm * 0.45  # 0.30–0.75 duty cycle
         phase = 0.5 * (1.0 + np.sin(2 * np.pi * mod_freq * t))
         texture_mod = np.where(phase >= 1.0 - duty, 1.0, 0.15)
-        if dens_norm > 0.75:
+        if rhythm_norm > 0.75:
             jitter = np.random.uniform(-0.12, 0.12, size=len(t))
             texture_mod = texture_mod + jitter
     texture_mod = np.clip(texture_mod, 0.0, 1.0)
 
-    # Envelope from gradient.
-    if gradient == 0:
+    # Envelope from grain.
+    if grain == 0:
         envelope = np.ones_like(t)
     else:
-        grad_norm = float(np.clip(gradient / 100.0, -1.0, 1.0))
+        grain_norm = float(np.clip(grain, 0.0, 1.0))
         slope = np.linspace(0.0, 1.0, n_samples)
-        if grad_norm > 0:
-            start_val = 1.0 - grad_norm
+        if grain_norm > 0:
+            start_val = 1.0 - grain_norm
             envelope = start_val + (1.0 - start_val) * slope
         else:
-            end_val = 1.0 + grad_norm
+            end_val = 1.0 + grain_norm
             envelope = 1.0 - (1.0 - end_val) * slope
     envelope = np.clip(envelope, 0.0, 1.0)
 
-    master = np.clip(amp_norm * 0.6 * envelope * texture_mod, 0.0, 1.0)
+    master = np.clip(intensity_norm * 0.6 * envelope * texture_mod, 0.0, 1.0)
     data_left = master * left_gain
     data_right = master * right_gain
     data = np.column_stack((data_left, data_right))

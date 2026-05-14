@@ -25,7 +25,7 @@ import matplotlib.style
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-DEFAULT_MAX_ITERS = 40
+DEFAULT_MAX_ITERS = 3
 
 # Use default (light) style
 matplotlib.style.use('default')
@@ -93,15 +93,12 @@ class AutoTestConfig:
 
 
 CANONICAL_PARAM_ORDER = ("intensity", "texture", "rhythm", "grain")
-LEGACY_PARAM_ORDER = ("amplitude", "frequency", "density", "gradient")
-CANONICAL_TO_LEGACY = dict(zip(CANONICAL_PARAM_ORDER, LEGACY_PARAM_ORDER))
-LEGACY_TO_CANONICAL = {legacy: canonical for canonical, legacy in CANONICAL_TO_LEGACY.items()}
 
 UI_PARAM_RANGES = {
-    "amplitude": (20.0, 100.0),
-    "frequency": (20.0, 100.0),
-    "density": (20.0, 100.0),
-    "gradient": (20.0, 100.0),
+    "intensity": (0.0, 1.0),
+    "texture": (0.0, 1.0),
+    "rhythm": (0.0, 1.0),
+    "grain": (0.0, 1.0),
 }
 
 
@@ -114,23 +111,9 @@ def _canonicalize_param_ranges(
     if ranges:
         for key, bounds in ranges.items():
             key = str(key)
-            if key in CANONICAL_TO_LEGACY:
+            if key in CANONICAL_PARAM_ORDER:
                 canonical[key] = (float(bounds[0]), float(bounds[1]))
-            elif key in LEGACY_TO_CANONICAL:
-                canonical[LEGACY_TO_CANONICAL[key]] = (float(bounds[0]), float(bounds[1]))
     return canonical
-
-
-def _to_legacy_param_ranges(
-    canonical_ranges: Dict[str, Tuple[float, float]]
-) -> Dict[str, Tuple[float, float]]:
-    legacy: Dict[str, Tuple[float, float]] = {}
-    for canonical, legacy_key in CANONICAL_TO_LEGACY.items():
-        bounds = canonical_ranges.get(canonical)
-        if bounds is None:
-            continue
-        legacy[legacy_key] = (float(bounds[0]), float(bounds[1]))
-    return legacy
 
 # -------------------------------------------------------------------------
 # MULTIPROCESSING WORKER FOR PYGAME
@@ -456,7 +439,7 @@ class AudioPreferenceStudyApp:
         for key, bounds in default_ranges.items():
             canonical_ranges.setdefault(key, bounds)
         self._canonical_param_ranges = canonical_ranges
-        self.session.audio.param_ranges = _to_legacy_param_ranges(self._canonical_param_ranges)
+        self.session.audio.param_ranges = dict(self._canonical_param_ranges)
         try:
             self.session.audio.set_output_device("xbox_controller")
             self.session.audio.duration = 3
@@ -999,10 +982,10 @@ class AudioPreferenceStudyApp:
             return "[I=?, T=?, R=?, G=?]"
         sliders = meta.get("sliders", {})
         try:
-            intensity_slider = float(sliders.get("intensity", 50.0))
-            texture_slider = float(sliders.get("texture", 50.0))
-            rhythm_slider = float(sliders.get("rhythm", 50.0))
-            grain_slider = float(sliders.get("grain", 50.0))
+            intensity_slider = float(sliders.get("intensity", 0.5))
+            texture_slider = float(sliders.get("texture", 0.5))
+            rhythm_slider = float(sliders.get("rhythm", 0.5))
+            grain_slider = float(sliders.get("grain", 0.5))
 
             inten = _map_intensity(intensity_slider)
             tex = _map_balance_left(texture_slider)
@@ -1013,7 +996,7 @@ class AudioPreferenceStudyApp:
                 f"T=L{tex*100:.0f}%/R{(1-tex)*100:.0f}%, "
                 f"R={rhythm:.2f}Hz, "
                 f"G={grain*100:.0f}% | "
-                f"s={intensity_slider:.1f},{texture_slider:.1f},{rhythm_slider:.1f},{grain_slider:.1f}]"
+                f"s={intensity_slider:.2f},{texture_slider:.2f},{rhythm_slider:.2f},{grain_slider:.2f}]"
             )
         except Exception:
             return "[I=?, T=?, R=?, G=?]"
@@ -1022,13 +1005,13 @@ class AudioPreferenceStudyApp:
         ranges = self._canonical_param_ranges or {}
 
         def to_slider(key: str, value: float) -> float:
-            bounds = ranges.get(key, (20.0, 100.0))
+            bounds = ranges.get(key, (0.0, 1.0))
             low, high = float(bounds[0]), float(bounds[1])
             if high == low:
-                return 20.0
+                return 0.0
             norm = (float(value) - low) / (high - low)
             norm = max(0.0, min(1.0, norm))
-            return 20.0 + norm * 80.0
+            return norm
 
         return {
             "sliders": {

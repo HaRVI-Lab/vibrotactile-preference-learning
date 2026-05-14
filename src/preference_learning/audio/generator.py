@@ -59,8 +59,8 @@ def _clamp01(x: float) -> float:
 
 
 def _norm_slider(val: float) -> float:
-    # Expect slider-like values 20..100 -> 0..1
-    return _clamp01((float(val) - 20.0) / 80.0)
+    # Expect normalized slider values 0..1.
+    return _clamp01(float(val))
 
 
 def _map_intensity(slider_val: float) -> float:
@@ -206,10 +206,10 @@ class AudioGenerator:
     sample_rate: int = 44100
     param_ranges: ParameterRanges = field(
         default_factory=lambda: {
-            "amplitude": (20.0, 100.0),
-            "frequency": (20.0, 100.0),
-            "density": (20.0, 100.0),
-            "gradient": (20.0, 100.0),
+            "intensity": (0.0, 1.0),
+            "texture": (0.0, 1.0),
+            "rhythm": (0.0, 1.0),
+            "grain": (0.0, 1.0),
         }
     )
 
@@ -245,29 +245,29 @@ class AudioGenerator:
             self.audio_backend = "sounddevice"
 
     def _param_to_slider(self, key: str, value: float) -> float:
-        bounds = self.param_ranges.get(key, (20.0, 100.0))
+        bounds = self.param_ranges.get(key, (0.0, 1.0))
         low, high = float(bounds[0]), float(bounds[1])
         if high == low:
-            return 20.0
+            return 0.0
         n = _clamp01((float(value) - low) / (high - low))
-        return 20.0 + n * 80.0
+        return n
 
     # ------------------------------------------------------------------ #
     # Signal synthesis
     # ------------------------------------------------------------------ #
-    def generate_signal(self, amplitude: float, frequency: float, density: float, gradient: float):
+    def generate_signal(self, intensity: float, texture: float, rhythm: float, grain: float):
         """Generate an audio signal with the provided parameters."""
-        amplitude = np.clip(amplitude, *self.param_ranges["amplitude"])
-        frequency = np.clip(frequency, *self.param_ranges["frequency"])
-        density = np.clip(density, *self.param_ranges["density"])
-        gradient = np.clip(gradient, *self.param_ranges["gradient"])
+        intensity = np.clip(intensity, *self.param_ranges["intensity"])
+        texture = np.clip(texture, *self.param_ranges["texture"])
+        rhythm = np.clip(rhythm, *self.param_ranges["rhythm"])
+        grain = np.clip(grain, *self.param_ranges["grain"])
 
         if self.output_device == "xbox_controller":
             duration_s = float(self.duration)
-            intensity_slider = self._param_to_slider("amplitude", amplitude)
-            texture_slider = self._param_to_slider("frequency", frequency)
-            rhythm_slider = self._param_to_slider("density", density)
-            grain_slider = self._param_to_slider("gradient", gradient)
+            intensity_slider = self._param_to_slider("intensity", intensity)
+            texture_slider = self._param_to_slider("texture", texture)
+            rhythm_slider = self._param_to_slider("rhythm", rhythm)
+            grain_slider = self._param_to_slider("grain", grain)
 
             segments, total_time = generate_xbox_rumble_segments(
                 intensity_slider, texture_slider, rhythm_slider, grain_slider, duration_s
@@ -277,10 +277,10 @@ class AudioGenerator:
             plot_waveform = np.mean(data, axis=1) if isinstance(data, np.ndarray) and data.ndim > 1 else data
             metadata = {
                 "parameters": {
-                    "amplitude": amplitude,
-                    "frequency": frequency,
-                    "density": density,
-                    "gradient": gradient,
+                    "intensity": intensity,
+                    "texture": texture,
+                    "rhythm": rhythm,
+                    "grain": grain,
                 },
                 "duration": total_time,
                 "fs": fs_plot,
@@ -296,10 +296,10 @@ class AudioGenerator:
             return t_vec, data, metadata
 
         t_vec, data, for_plot = generate_tone_signal(
-            filler_amplitude=amplitude,
-            filler_frequency=frequency,
-            filler_density=density,
-            filler_env_gradient=gradient,
+            intensity=intensity,
+            texture=texture,
+            rhythm=rhythm,
+            grain=grain,
             duration=self.duration,
             cycles=self.cycles,
             fs=self.sample_rate,
@@ -311,10 +311,10 @@ class AudioGenerator:
 
         metadata = {
             "parameters": {
-                "amplitude": amplitude,
-                "frequency": frequency,
-                "density": density,
-                "gradient": gradient,
+                "intensity": intensity,
+                "texture": texture,
+                "rhythm": rhythm,
+                "grain": grain,
             },
             "duration": self.duration,
             "fs": self.sample_rate,

@@ -15,24 +15,11 @@ from .gaussian_process import GaussianProcess
 
 ParameterBounds = Dict[str, Tuple[float, float]]
 CANONICAL_PARAM_ORDER = ("intensity", "texture", "rhythm", "grain")
-LEGACY_PARAM_ALIASES = {
-    "amplitude": "intensity",
-    "frequency": "texture",
-    "density": "rhythm",
-    "gradient": "grain",
-}
-CANONICAL_TO_LEGACY = {v: k for k, v in LEGACY_PARAM_ALIASES.items()}
-
-
 def _canonicalize_bounds(bounds: ParameterBounds) -> ParameterBounds:
     canonical: ParameterBounds = {}
     for name in CANONICAL_PARAM_ORDER:
         if name in bounds:
             canonical[name] = bounds[name]
-        else:
-            legacy = CANONICAL_TO_LEGACY.get(name)
-            if legacy in bounds:
-                canonical[name] = bounds[legacy]
     return canonical if len(canonical) == len(CANONICAL_PARAM_ORDER) else bounds
 
 
@@ -42,10 +29,10 @@ class AudioPreferenceGaussianProcess(GaussianProcess):
 
     parameter_bounds: ParameterBounds = field(
         default_factory=lambda: {
-            "intensity": (20.0, 100.0),
-            "texture": (20.0, 100.0),
-            "rhythm": (20.0, 100.0),
-            "grain": (20.0, 100.0),
+            "intensity": (0.0, 1.0),
+            "texture": (0.0, 1.0),
+            "rhythm": (0.0, 1.0),
+            "grain": (0.0, 1.0),
         }
     )
 

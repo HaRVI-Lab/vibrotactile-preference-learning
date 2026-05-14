@@ -35,14 +35,6 @@ DEFAULT_GT_RANDOM_SAMPLES = 10000
 DEFAULT_GT_TOP_K = 20
 DEFAULT_VALIDATION_TOP_K = 20
 DEFAULT_VALIDATION_RANDOM_TRIALS = 200
-PARAMETER_NAME_MAP = {
-    "intensity": "amplitude",
-    "texture": "frequency",
-    "rhythm": "density",
-    "grain": "gradient",
-}
-
-
 def level_from_diff_legacy(diff_abs_norm: float) -> int:
     level = 1
     for j, threshold in enumerate(DIFF_THRESHOLDS, start=1):
@@ -845,11 +837,11 @@ class PreferenceSession:
     def _build_eval_set(self, n: int = 800) -> None:
         self.eval_pts_phys = []
         for _ in range(n):
-            a = np.random.uniform(*self.audio.param_ranges["amplitude"])
-            f = np.random.uniform(*self.audio.param_ranges["frequency"])
-            d = np.random.uniform(*self.audio.param_ranges["density"])
-            g = np.random.uniform(*self.audio.param_ranges["gradient"])
-            self.eval_pts_phys.append(np.array([a, f, d, g]))
+            i_val = np.random.uniform(*self.audio.param_ranges["intensity"])
+            t_val = np.random.uniform(*self.audio.param_ranges["texture"])
+            r_val = np.random.uniform(*self.audio.param_ranges["rhythm"])
+            g_val = np.random.uniform(*self.audio.param_ranges["grain"])
+            self.eval_pts_phys.append(np.array([i_val, t_val, r_val, g_val]))
         self.eval_gt = np.array([self._gt_value(p) for p in self.eval_pts_phys])
 
     def _update_test_metrics(self, update_rec_best: bool = False) -> None:
@@ -892,20 +884,20 @@ class PreferenceSession:
     def _physical_bounds(self) -> List[Tuple[float, float]]:
         ranges = self.audio.param_ranges
         return [
-            ranges["amplitude"],
-            ranges["frequency"],
-            ranges["density"],
-            ranges["gradient"],
+            ranges["intensity"],
+            ranges["texture"],
+            ranges["rhythm"],
+            ranges["grain"],
         ]
 
     def _bounds_dict(self) -> Dict[str, List[float]]:
         ranges = self.audio.param_ranges
         bounds_dict = {}
-        for canonical, legacy in PARAMETER_NAME_MAP.items():
-            bounds = ranges.get(legacy)
+        for key in ("intensity", "texture", "rhythm", "grain"):
+            bounds = ranges.get(key)
             if bounds is None:
                 continue
-            bounds_dict[canonical] = [float(bounds[0]), float(bounds[1])]
+            bounds_dict[key] = [float(bounds[0]), float(bounds[1])]
         return bounds_dict
 
     def _build_validation_summary(self) -> Dict[str, object]:
@@ -1046,12 +1038,9 @@ class PreferenceSession:
         training_queries = []
         for rec in self.user_query_history:
             p1_norm, p2_norm = rec.normalized
-            p1_phys, p2_phys = rec.physical
             training_queries.append(
                 {
                     "iteration": int(rec.iteration),
-                    "A": to_float_list(p1_phys),
-                    "B": to_float_list(p2_phys),
                     "A_norm": to_float_list(p1_norm),
                     "B_norm": to_float_list(p2_norm),
                     "choice": rec.choice,
@@ -1083,8 +1072,6 @@ class PreferenceSession:
             validation_queries.append(
                 {
                     "round": int(rec.round_index),
-                    "A": to_float_list(p1_phys),
-                    "B": to_float_list(p2_phys),
                     "A_norm": to_float_list(p1_norm),
                     "B_norm": to_float_list(p2_norm),
                     "choice": rec.choice,
@@ -1109,8 +1096,6 @@ class PreferenceSession:
             test_queries.append(
                 {
                     "iteration": int(rec.iteration),
-                    "A": to_float_list(p1_phys),
-                    "B": to_float_list(p2_phys),
                     "A_norm": to_float_list(p1_norm),
                     "B_norm": to_float_list(p2_norm),
                     "choice": rec.choice,
@@ -1135,18 +1120,7 @@ class PreferenceSession:
         }
 
         param_ranges: Dict[str, List[float]] = {}
-        for canonical, legacy in PARAMETER_NAME_MAP.items():
-            bounds = self.audio.param_ranges.get(legacy)
-            if bounds is None:
-                bounds = self.audio.param_ranges.get(canonical)
-            if bounds is None:
-                continue
-            param_ranges[canonical] = [float(bounds[0]), float(bounds[1])]
         for key, bounds in self.audio.param_ranges.items():
-            if key in PARAMETER_NAME_MAP.values():
-                continue
-            if key in param_ranges:
-                continue
             param_ranges[key] = [float(bounds[0]), float(bounds[1])]
 
         metadata = {
@@ -1188,12 +1162,12 @@ class PreferenceSession:
     # ------------------------------------------------------------------ #
     def _ideal_for_gt_func(self, kind: GroundTruthKind) -> List[float]:
         if kind is GroundTruthKind.GAUSSIAN_OFFSET:
-            return [73.3, 44.0, 75.0, 68.0]
+            return [0.66625, 0.3, 0.6875, 0.6]
         if kind is GroundTruthKind.BIMODAL:
-            return [60.0, 60.0, 60.0, 60.0]
+            return [0.5, 0.5, 0.5, 0.5]
         if kind is GroundTruthKind.RIDGE:
-            return [60.0, 60.0, 60.0, 60.0]
-        return [60.0, 60.0, 60.0, 60.0]
+            return [0.5, 0.5, 0.5, 0.5]
+        return [0.5, 0.5, 0.5, 0.5]
 
     def _gt_value(self, params_phys: Sequence[float]) -> float:
         kind = self.state.gt_kind
@@ -1201,21 +1175,21 @@ class PreferenceSession:
         if kind is GroundTruthKind.GAUSSIAN_OFFSET:
             from scipy.stats import multivariate_normal
 
-            mean = np.array([73.3, 44.0, 75.0, 68.0])
-            cov = np.diag([853.3, 640.0, 500.0, 256.0])
+            mean = np.array([0.66625, 0.3, 0.6875, 0.6])
+            cov = np.diag([0.133328125, 0.1, 0.078125, 0.04])
             try:
                 rv = multivariate_normal(mean=mean, cov=cov)
                 return float(rv.pdf(x))
             except Exception:
                 d = np.linalg.norm(x - mean)
-                return float(np.exp(-d / 28.0))
+                return float(np.exp(-d / 0.35))
         if kind is GroundTruthKind.BIMODAL:
             from scipy.stats import multivariate_normal
 
-            mean1 = np.array([60.0, 60.0, 60.0, 60.0])
-            mean2 = np.array([86.7, 76.0, 50.0, 72.0])
-            cov1 = np.diag([711.0, 563.2, 420.0, 204.8])
-            cov2 = np.diag([995.5, 512.0, 360.0, 230.4])
+            mean1 = np.array([0.5, 0.5, 0.5, 0.5])
+            mean2 = np.array([0.83375, 0.7, 0.375, 0.65])
+            cov1 = np.diag([0.11109375, 0.088, 0.065625, 0.032])
+            cov2 = np.diag([0.155546875, 0.08, 0.05625, 0.036])
             try:
                 rv1 = multivariate_normal(mean=mean1, cov=cov1)
                 rv2 = multivariate_normal(mean=mean2, cov=cov2)
@@ -1223,26 +1197,26 @@ class PreferenceSession:
             except Exception:
                 d1 = np.linalg.norm(x - mean1)
                 d2 = np.linalg.norm(x - mean2)
-                return float(0.6 * np.exp(-d1 / 28.0) + 0.4 * np.exp(-d2 / 30.0))
+                return float(0.6 * np.exp(-d1 / 0.35) + 0.4 * np.exp(-d2 / 0.375))
         if kind is GroundTruthKind.RIDGE:
-            a, f, d, g = x
+            i_val, t_val, r_val, g_val = x
             value = (
-                np.exp(-((a - 60.0) ** 2) / 480.0)
-                * np.exp(-((f - 60.0) ** 2) / 640.0)
-                * np.exp(-((d - 60.0) ** 2) / 3000.0)
-                * np.exp(-((g - 60.0) ** 2) / 1500.0)
+                np.exp(-((i_val - 0.5) ** 2) / 0.075)
+                * np.exp(-((t_val - 0.5) ** 2) / 0.1)
+                * np.exp(-((r_val - 0.5) ** 2) / 0.46875)
+                * np.exp(-((g_val - 0.5) ** 2) / 0.234375)
             )
             return float(value)
         from scipy.stats import multivariate_normal
 
-        mean = np.array([60.0, 60.0, 60.0, 60.0])
-        cov = np.diag([711.0, 512.0, 400.0, 192.0])
+        mean = np.array([0.5, 0.5, 0.5, 0.5])
+        cov = np.diag([0.11109375, 0.08, 0.0625, 0.03])
         try:
             rv = multivariate_normal(mean=mean, cov=cov)
             return float(rv.pdf(x))
         except Exception:
             d = np.linalg.norm(x - mean)
-            return float(np.exp(-d / 30.0))
+            return float(np.exp(-d / 0.375))
 
     def gt_value(self, params_phys: Sequence[float]) -> float:
         """Public wrapper for ground-truth evaluation."""

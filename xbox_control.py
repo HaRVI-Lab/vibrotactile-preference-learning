@@ -45,37 +45,36 @@ COLOR_BORDER = "#e5e7eb"
 
 
 # ==========================================
-# Mapping: UI slider (20..100) -> real units
+# Mapping: UI slider (0..1) -> real units
 # ==========================================
 def _clamp01(x: float) -> float:
     return max(0.0, min(1.0, x))
 
 
-def norm_20_100(x: float) -> float:
-    # 20 -> 0.0, 100 -> 1.0
-    return _clamp01((float(x) - 20.0) / 80.0)
+def norm_0_1(x: float) -> float:
+    return _clamp01(float(x))
 
 
 def map_intensity(slider_val: float) -> float:
     # 0.20 .. 1.00
-    n = norm_20_100(slider_val)
+    n = norm_0_1(slider_val)
     return 0.20 + n * 0.80
 
 
 def map_balance_left(slider_val: float) -> float:
     # 0.00 .. 1.00 (left share)
-    return norm_20_100(slider_val)
+    return norm_0_1(slider_val)
 
 
 def map_rhythm_hz(slider_val: float) -> float:
     # 0.60 .. 4.00 Hz
-    n = norm_20_100(slider_val)
+    n = norm_0_1(slider_val)
     return 0.60 + n * 3.40
 
 
 def map_grain_duty(slider_val: float) -> float:
     # 10% .. 70%
-    n = norm_20_100(slider_val)
+    n = norm_0_1(slider_val)
     return 0.10 + n * 0.60
 
 
@@ -369,7 +368,7 @@ class XboxVibrationApp:
         self.btn_refresh = self._make_button(status_inner, "Refresh", self.refresh_controllers, width=10)
         self.btn_refresh.pack(side=tk.RIGHT)
 
-        params_card = self._make_card(left_panel, "Parameters (slider range: 20–100)")
+        params_card = self._make_card(left_panel, "Parameters (slider range: 0–1)")
         self.vars = {}
         self.scales = {}
 
@@ -377,37 +376,41 @@ class XboxVibrationApp:
             params_card,
             "Intensity",
             "intensity",
-            20,
-            100,
-            50,
+            0.0,
+            1.0,
+            0.5,
             display_fn=lambda v: f"{map_intensity(v):.2f} (0.20–1.00)",
+            resolution=0.01,
         )
         self.create_slider(
             params_card,
             "Texture / Balance",
             "texture",
-            20,
-            100,
-            50,
+            0.0,
+            1.0,
+            0.5,
             display_fn=lambda v: f"Left {map_balance_left(v)*100:.0f}% / Right {(1-map_balance_left(v))*100:.0f}%",
+            resolution=0.01,
         )
         self.create_slider(
             params_card,
             "Rhythm",
             "rhythm",
-            20,
-            100,
-            50,
+            0.0,
+            1.0,
+            0.5,
             display_fn=lambda v: f"{map_rhythm_hz(v):.2f} Hz (0.60–4.00)",
+            resolution=0.01,
         )
         self.create_slider(
             params_card,
             "Grain",
             "grain",
-            20,
-            100,
-            50,
+            0.0,
+            1.0,
+            0.5,
             display_fn=lambda v: f"{map_grain_duty(v)*100:.0f}% duty (10–70%)",
+            resolution=0.01,
         )
 
         ttk.Separator(params_card, orient="horizontal").pack(fill="x", pady=10, padx=8)
@@ -684,7 +687,18 @@ class XboxVibrationApp:
     # -----------------------
     # UI helpers
     # -----------------------
-    def create_slider(self, parent, label, var_name, min_v, max_v, def_v, display_fn, disabled=False):
+    def create_slider(
+        self,
+        parent,
+        label,
+        var_name,
+        min_v,
+        max_v,
+        def_v,
+        display_fn,
+        disabled=False,
+        resolution=None,
+    ):
         f = tk.Frame(parent, bg=COLOR_PANEL)
         f.pack(fill="x", pady=6, padx=8)
 
@@ -732,6 +746,8 @@ class XboxVibrationApp:
             relief="flat",
             sliderlength=18,
         )
+        if resolution is not None:
+            scale.configure(resolution=resolution)
         if disabled:
             scale.configure(state="disabled")
         scale.pack(fill="x")
